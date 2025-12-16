@@ -1,0 +1,5 @@
+/rapidapi_json_data
+/venv
+/*.csv
+.DS_Store
+__pycache__

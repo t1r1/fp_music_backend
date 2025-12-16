@@ -1,0 +1,7 @@
+tinytag
+requests
+pylast
+psycopg
+pandas
+fastapi
+uvicorn
