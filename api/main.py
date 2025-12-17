@@ -35,12 +35,13 @@ def read_item(mood_id: str, q: Union[str, None] = None):
             tracks_output = []
 
             for track in tracks:
+                genre = track[3]
                 dict = {}
                 dict["id"] = track[0]
                 dict["title"] = track[1]
                 dict["artist"] = track[2]
-                dict["genre"] = track[3]
-                dict["filename"] = track[4].split("_")[1]
+                filename = track[4].split("_")[1]
+                dict["filepath"] = f"/mp3/{genre}/{filename}.mp3"
                 tracks_output.append(dict)
 
     return {
