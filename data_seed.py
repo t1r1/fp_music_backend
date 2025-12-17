@@ -6,25 +6,25 @@ import pandas as pd
 # INSERT INTO color (color_id, color_name)
 # VALUES (2, 'Green');
 
-# with psycopg.connect(
-#     "dbname=music user=t1r1 password=31337 host=localhost port=5432"
-# ) as conn:
-#     with conn.cursor() as cur:
-#         with open("metadata.csv") as f:
-#             reader = csv.DictReader(f)
+with psycopg.connect(
+    "dbname=music user=t1r1 password=31337 host=localhost port=5432"
+) as conn:
+    with conn.cursor() as cur:
+        with open("metadata.csv") as f:
+            reader = csv.DictReader(f)
 
-#             for item in reader:
-#                 print(f'{item["genre"]}_{item["id"]}')
+            for item in reader:
+                print(f'{item["genre"]}_{item["id"]}')
 
-#                 cur.execute(
-#                     "INSERT INTO Tracks (emotify_id, title, artist, genre) VALUES (%s, %s, %s, %s)",
-#                     (
-#                         f'{item["genre"]}_{item["id"]}',
-#                         item["title"],
-#                         item["artist"],
-#                         item["genre"],
-#                     ),
-#                 )
+                cur.execute(
+                    "INSERT INTO Tracks (emotify_id, title, artist, genre) VALUES (%s, %s, %s, %s)",
+                    (
+                        f'{item["genre"]}_{item["id"]}',
+                        item["title"],
+                        item["artist"],
+                        item["genre"],
+                    ),
+                )
 
 
 # df = pd.read_csv("annotations.csv")
@@ -94,33 +94,51 @@ with psycopg.connect(
 # );
 
 
-create table Audio_Features (
-id int generated always as identity,
-primary key(id),
-track_id int references Tracks(id),
-energy int,
-happiness int,
-liveness int,
-danceability int,
-acousticness int,
-tempo int
-);
+# create table Audio_Features (
+# id int generated always as identity,
+# primary key(id),
+# track_id int references Tracks(id),
+# energy int,
+# happiness int,
+# liveness int,
+# danceability int,
+# acousticness int,
+# tempo int
+# );
 
 
-create table Moods (
-    id int generated always as identity,
-primary key(id),
-mood varchar(50),
-annotation varchar(50)
-);
+# create table Moods (
+#     id int generated always as identity,
+# primary key(id),
+# mood varchar(50),
+# annotation varchar(50)
+# );
 
-create table Recommendations (
-id int generated always as identity,
-primary key(id),
-track_id int references Tracks(id),
-mood_id int references Moods(id),
-  annotation_score DOUBLE PRECISION NOT NULL,
-  audio_score DOUBLE PRECISION NOT NULL,
-  final_score DOUBLE PRECISION NOT NULL,
-  algorithm_version int
-);
+# create table Recommendations (
+# id int generated always as identity,
+# primary key(id),
+# track_id int references Tracks(id),
+# mood_id int references Moods(id),
+#   annotation_score DOUBLE PRECISION NOT NULL,
+#   audio_score DOUBLE PRECISION NOT NULL,
+#   final_score DOUBLE PRECISION NOT NULL,
+#   algorithm_version int
+# );
+
+
+# create table Annotations (
+# id int generated always as identity,
+# primary key(id),
+# track_id int references Tracks(id),
+# amazement int,
+# solemnity int,
+# tenderness int,
+# nostalgia int,
+# calmness int,
+# power int,
+# joyful_activation int,
+# tension int,
+# sadness int,
+# mood int,
+# genre varchar(25)
+# );
