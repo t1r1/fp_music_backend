@@ -5,7 +5,7 @@ from fastapi import FastAPI
 
 DB_DSN = "dbname=music user=t1r1 password=31337 host=localhost port=5432"
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 
 @app.get("/")
