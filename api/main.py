@@ -16,7 +16,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=False,  # set False as I don't use cookies/auth
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -25,6 +25,22 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+
+@app.get("/moods")
+def fetch_moods():
+    with psycopg.connect(DB_DSN) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "select id, mood, annotation from Moods;",
+                (),
+            )
+            moods = cur.fetchall()
+            print(moods)
+
+        return {
+            "moods": moods,
+        }
 
 
 @app.get("/recommendations/{mood_id}")
