@@ -36,10 +36,14 @@ def fetch_moods():
                 (),
             )
             moods = cur.fetchall()
-            print(moods)
+
+            def map_function(val):
+                return {"id": val[0], "mood": val[1], "annotation": val[2]}
+
+            mapped_moods = map(map_function, moods)
 
         return {
-            "moods": moods,
+            "moods": list(mapped_moods),
         }
 
 
