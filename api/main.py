@@ -52,7 +52,7 @@ def read_item(mood_id: str, q: Union[str, None] = None):
     with psycopg.connect(DB_DSN) as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "select t.id, t.title, t.artist, t.genre, t.emotify_id from Tracks as t inner join Recommendations as r on t.id=r.track_id where r.mood_id=%s order by r.final_score desc;",
+                "select r.id, t.title, t.artist, t.genre, t.emotify_id from Tracks as t inner join Recommendations as r on t.id=r.track_id where r.mood_id=%s order by r.final_score desc;",
                 (mood_id,),
             )
             tracks = cur.fetchall()
