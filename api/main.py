@@ -3,10 +3,14 @@ import psycopg
 from typing import Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 DB_DSN = "dbname=music user=t1r1 password=31337 host=localhost port=5432"
 
 app = FastAPI(root_path="/api")
+
+# serve everything in ./media under /media
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 origins = [
     "http://localhost:3000",
@@ -67,7 +71,9 @@ def read_item(mood_id: str, q: Union[str, None] = None):
                 dict["artist"] = track[2]
                 dict["genre"] = genre
                 filename = track[4].split("_")[1]
-                dict["filepath"] = f"/mp3/{genre}/{filename}.mp3"
+                dict["filepath"] = (
+                    f"http://127.0.0.1:8000/api/media/{genre}/{filename}.mp3"
+                )
                 tracks_output.append(dict)
 
     return {
