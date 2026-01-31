@@ -1,7 +1,8 @@
-import asyncio
 import psycopg
-from typing import Union
 from fastapi import FastAPI
+from typing import Optional, List
+from fastapi import Query
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -52,13 +53,23 @@ def fetch_moods():
 
 
 @app.get("/recommendations/{mood_id}")
-def read_item(mood_id: str, q: Union[str, None] = None):
+def read_item(
+    mood_id: str,
+    genre: Optional[List[str]] = Query(default=None),
+):
     with psycopg.connect(DB_DSN) as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                "select r.id, t.title, t.artist, t.genre, t.emotify_id from Tracks as t inner join Recommendations as r on t.id=r.track_id where r.mood_id=%s and r.algorithm_version LIKE %s order by r.final_score desc;",
-                (mood_id, "%v3%"),
-            )
+            query = """
+                select r.id, t.title, t.artist, t.genre, t.emotify_id from Tracks as t inner join Recommendations as r on t.id=r.track_id where r.mood_id=%s and r.algorithm_version LIKE %s
+            """
+            params = (mood_id, "%v3%")
+
+            if genre:
+                query += " and t.genre = ANY(%s)"
+                params.append(genre)
+            query += "order by r.final_score DESC"
+
+            cur.execute(query, params)
             tracks = cur.fetchall()
             print(tracks)
             tracks_output = []
