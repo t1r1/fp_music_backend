@@ -62,7 +62,7 @@ def read_item(
             query = """
                 select r.id, t.title, t.artist, t.genre, t.emotify_id from Tracks as t inner join Recommendations as r on t.id=r.track_id where r.mood_id=%s and r.algorithm_version LIKE %s
             """
-            params = (mood_id, "%v3%")
+            params = [mood_id, "%v3%"]
 
             if genre:
                 query += " and t.genre = ANY(%s)"
