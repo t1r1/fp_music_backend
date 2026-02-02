@@ -1,12 +1,26 @@
-import psycopg
+import logging
 from fastapi import FastAPI
 from typing import Optional, List
 from fastapi import Query
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from api.sessions import set_session_id, SessionID
+from api.models import (
+    ListMoodsResponse,
+    RecommendationsResponse,
+    EvaluationResponse,
+    EvaluationRequest,
+)
+from api.db import fetch_moods, fetch_recommended_tracks, insert_or_update_evaluation
 
-DB_DSN = "dbname=music user=t1r1 password=31337 host=localhost port=5432"
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[logging.StreamHandler()],
+)
 
 app = FastAPI(root_path="/api")
 
@@ -26,68 +40,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+app.add_middleware(BaseHTTPMiddleware, dispatch=set_session_id)
 
 
 @app.get("/moods")
-def fetch_moods():
-    with psycopg.connect(DB_DSN) as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "select id, mood, annotation from Moods;",
-                (),
-            )
-            moods = cur.fetchall()
-
-            def map_function(val):
-                return {"id": val[0], "mood": val[1], "annotation": val[2]}
-
-            mapped_moods = map(map_function, moods)
-
-        return {
-            "moods": list(mapped_moods),
-        }
+async def list_moods() -> ListMoodsResponse:
+    moods = fetch_moods()
+    return ListMoodsResponse(moods=moods)
 
 
 @app.get("/recommendations/{mood_id}")
-def read_item(
-    mood_id: str,
+async def read_item(
+    sid: SessionID,
+    mood_id: int,
     genre: Optional[List[str]] = Query(default=None),
-):
-    with psycopg.connect(DB_DSN) as conn:
-        with conn.cursor() as cur:
-            query = """
-                select r.id, t.title, t.artist, t.genre, t.emotify_id from Tracks as t inner join Recommendations as r on t.id=r.track_id where r.mood_id=%s and r.algorithm_version LIKE %s
-            """
-            params = [mood_id, "%v3%"]
+) -> RecommendationsResponse:
+    tracks = fetch_recommended_tracks(mood_id, "v3", genre)
+    return RecommendationsResponse(mood_id=mood_id, tracks=tracks)
 
-            if genre:
-                query += " and t.genre = ANY(%s)"
-                params.append(genre)
-            query += "order by r.final_score DESC"
 
-            cur.execute(query, params)
-            tracks = cur.fetchall()
-            print(tracks)
-            tracks_output = []
+@app.get("/my_session")  # debug method
+async def my_session(session_id: SessionID):
+    return {"session_id": session_id}
 
-            for track in tracks:
-                genre = track[3]
-                dict = {}
-                dict["id"] = track[0]
-                dict["title"] = track[1]
-                dict["artist"] = track[2]
-                dict["genre"] = genre
-                filename = track[4].split("_")[1]
-                dict["filepath"] = (
-                    f"http://127.0.0.1:8000/api/media/{genre}/{filename}.mp3"
-                )
-                tracks_output.append(dict)
 
-    return {
-        "mood_id": mood_id,
-        "tracks": tracks_output,
-    }
+@app.post("/evaluation")
+async def create_item(sid: SessionID, body: EvaluationRequest) -> EvaluationResponse:
+    result = insert_or_update_evaluation(sid, body.recommendation_id, body.liked)
+    print(result)
+    return result
