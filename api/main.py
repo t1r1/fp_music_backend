@@ -55,7 +55,7 @@ async def list_moods() -> ListMoodsResponse:
 
 
 @app.get("/recommendations/{mood_id}")
-async def read_item(
+async def list_tracks(
     sid: SessionID,
     mood_id: int,
     genre: Optional[List[str]] = Query(default=None),
@@ -65,13 +65,15 @@ async def read_item(
 
 
 @app.post("/evaluations")
-async def create_item(sid: SessionID, body: EvaluationRequest) -> EvaluationResponse:
+async def create_evaluation(
+    sid: SessionID, body: EvaluationRequest
+) -> EvaluationResponse:
     result = insert_or_update_evaluation(sid, body.recommendation_id, body.liked)
     print(result)
     return result
 
 
 @app.get("/evaluations", response_model=List[EvaluationResponse])
-async def get_items(sid: SessionID) -> list[EvaluationResponse]:
+async def list_evaluations(sid: SessionID) -> list[EvaluationResponse]:
     rows = fetch_evaluations(sid)
     return rows
