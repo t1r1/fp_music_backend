@@ -43,7 +43,7 @@ def fetch_recommended_tracks(
                     title=val[1],
                     artist=val[2],
                     genre=val[3],
-                    filepath=f"http://127.0.0.1:8000/api/media/{val[3]}/{filename}.mp3",
+                    filepath=f"/api/media/{val[3]}/{filename}.mp3",
                 )
 
             return list(map(mapper, tracks))
