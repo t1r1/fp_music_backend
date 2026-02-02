@@ -64,12 +64,7 @@ async def read_item(
     return RecommendationsResponse(mood_id=mood_id, tracks=tracks)
 
 
-@app.get("/my_session")  # debug method
-async def my_session(session_id: SessionID):
-    return {"session_id": session_id}
-
-
-@app.post("/evaluation")
+@app.post("/evaluations")
 async def create_item(sid: SessionID, body: EvaluationRequest) -> EvaluationResponse:
     result = insert_or_update_evaluation(sid, body.recommendation_id, body.liked)
     print(result)
