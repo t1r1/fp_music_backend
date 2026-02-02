@@ -27,7 +27,7 @@ class RecommendationsResponse(BaseModel):
 
 class EvaluationResponse(BaseModel):
     recommendation_id: int
-    liked: int
+    liked: Optional[int]
 
 
 class EvaluationRequest(BaseModel):

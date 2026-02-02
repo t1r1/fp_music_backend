@@ -13,7 +13,12 @@ from api.models import (
     EvaluationResponse,
     EvaluationRequest,
 )
-from api.db import fetch_moods, fetch_recommended_tracks, insert_or_update_evaluation
+from api.db import (
+    fetch_moods,
+    fetch_recommended_tracks,
+    insert_or_update_evaluation,
+    fetch_evaluations,
+)
 
 
 logging.basicConfig(
@@ -55,7 +60,7 @@ async def read_item(
     mood_id: int,
     genre: Optional[List[str]] = Query(default=None),
 ) -> RecommendationsResponse:
-    tracks = fetch_recommended_tracks(mood_id, "v3", genre)
+    tracks = fetch_recommended_tracks(mood_id, "v3", genre, sid)
     return RecommendationsResponse(mood_id=mood_id, tracks=tracks)
 
 
@@ -69,3 +74,9 @@ async def create_item(sid: SessionID, body: EvaluationRequest) -> EvaluationResp
     result = insert_or_update_evaluation(sid, body.recommendation_id, body.liked)
     print(result)
     return result
+
+
+@app.get("/evaluations", response_model=List[EvaluationResponse])
+async def get_items(sid: SessionID) -> list[EvaluationResponse]:
+    rows = fetch_evaluations(sid)
+    return rows

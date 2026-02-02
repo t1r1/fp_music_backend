@@ -1,6 +1,7 @@
 import psycopg
 from typing import Optional
 from api.models import Mood, Track, EvaluationResponse
+from psycopg.rows import dict_row
 
 DB_DSN = "dbname=music user=t1r1 password=31337 host=localhost port=5432"
 
@@ -16,11 +17,14 @@ def fetch_moods() -> list[Mood]:
 
 
 def fetch_recommended_tracks(
-    mood_id: int, algo_version: str, genre: Optional[list[str]]
+    mood_id: int, algo_version: str, genre: Optional[list[str]], sid: str
 ) -> list[Track]:
+
     query = (
-        "SELECT r.id, t.title, t.artist, t.genre, t.emotify_id from Tracks as t "
-        "INNER JOIN Recommendations as r ON t.id=r.track_id where r.mood_id=%s "
+        "SELECT r.id, t.title, t.artist, t.genre, t.emotify_id "
+        "FROM Tracks AS t "
+        "INNER JOIN Recommendations AS r ON t.id = r.track_id "
+        "WHERE r.mood_id = %s "
         "AND r.algorithm_version LIKE %s"
     )
     params = [f"{mood_id}", f"%{algo_version}%"]
@@ -70,3 +74,15 @@ def insert_or_update_evaluation(sid: str, recommendation_id: int, liked: int):
         conn.commit()
 
     return EvaluationResponse(recommendation_id=recommendation_id, liked=liked)
+
+
+def fetch_evaluations(sid: str):
+    sql = """
+    SELECT * from Evaluations where user_session_id = %s 
+    """
+    with psycopg.connect(DB_DSN, row_factory=dict_row) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, (sid,))
+            rows = cur.fetchall()
+            print("DB rows:", rows)
+            return rows
