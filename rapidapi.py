@@ -8,7 +8,7 @@ API_URI = "https://track-analysis.p.rapidapi.com/pktx/analysis"
 OUTPUT_DIR_NAME = "rapidapi_json_data"
 
 headers = {
-    "x-rapidapi-key": "187b34d13bmsh0045d05cfffd71dp103e2ejsnb35eaf3424ca",
+    "x-rapidapi-key": "187b34d13bmsh0045d05cfffd71dp103e2ejsnb35eaf3424ca",  # TODO: revoke for security before publishing repo
     "x-rapidapi-host": "track-analysis.p.rapidapi.com",
 }
 

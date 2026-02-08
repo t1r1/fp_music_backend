@@ -25,7 +25,7 @@ def minmax(series: pd.Series) -> pd.Series:
 
 
 with psycopg.connect(DB_DSN) as conn:
-    # 1) Read data from DB into pandas
+    # 1) read data from DB into pandas
     tracks = pd.read_sql(
         "SELECT id AS track_id, title, artist, genre FROM Tracks;", conn
     )
@@ -56,13 +56,13 @@ with psycopg.connect(DB_DSN) as conn:
     mood_id = int(moods.iloc[0]["mood_id"])
 
 
-# 2) Annotation score per track (joy probability)
+# 2) annotation score per track (joy probability)
 ann_score = ann.groupby("track_id", as_index=False).agg(
     joy_count=("joyful_activation", "sum"), n=("joyful_activation", "count")
 )
 ann_score["annotation_score"] = ann_score["joy_count"] / ann_score["n"]
 
-# 3) Normalize audio features and compute audio score
+# 3) normalize audio features and compute audio score
 af = af.copy()
 af["energy_n"] = minmax(af["energy"])
 af["dance_n"] = minmax(af["danceability"])
@@ -78,7 +78,7 @@ af["audio_score"] = (
 
 audio_score = af[["track_id", "audio_score"]]
 
-# 4) Combine tracks + scores
+# 4) combine tracks + scores
 df = tracks.merge(audio_score, on="track_id", how="inner").merge(
     ann_score[["track_id", "annotation_score"]], on="track_id", how="left"
 )
@@ -87,26 +87,26 @@ df["annotation_score"] = df["annotation_score"].fillna(0.0)
 
 df["final_score"] = W_ANN * df["annotation_score"] + W_AUD * df["audio_score"]
 
-# 5) Take top K
+# 5) take top K
 recs = df.sort_values("final_score", ascending=False).head(TOP_K).copy()
 
-# 6) Build the output table structure
+# 6) build the output table structure
 out = recs[["track_id", "audio_score", "annotation_score", "final_score"]].copy()
 out["mood_id"] = mood_id
 out["algorithm_version"] = ALGO_VERSION
 
-# 7) Save to file (for transparency / debugging)
+# 7) save to file (for transparency / debugging)
 out_file = "recommendations_joy.csv"
 out.to_csv(out_file, index=False)
 
-print("Saved:", out_file)
+print("saved:", out_file)
 print(out.head(10))
 
 
-# Insert into DB row-by-row
+# insert into DB
 with psycopg.connect(DB_DSN) as conn:
     with conn.cursor() as cur:
-        # Clear previous run for the same mood/version
+        # clear previous run for the same mood/version
         cur.execute(
             "DELETE FROM Recommendations WHERE mood_id = %s AND algorithm_version = %s;",
             (MOOD_ID, ALGO_VERSION),
@@ -132,4 +132,4 @@ with psycopg.connect(DB_DSN) as conn:
 
     conn.commit()
 
-print(f"Inserted {len(out)} joy recommendations (mood_id={MOOD_ID}).")
+print(f"inserted {len(out)} joy recommendations (mood_id={MOOD_ID}).")
