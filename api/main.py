@@ -60,7 +60,7 @@ async def list_tracks(
     mood_id: int,
     genre: Optional[List[str]] = Query(default=None),
 ) -> RecommendationsResponse:
-    tracks = fetch_recommended_tracks(mood_id, "v3", genre, sid)
+    tracks = fetch_recommended_tracks(mood_id, "v4", genre, sid)
     return RecommendationsResponse(mood_id=mood_id, tracks=tracks)
 
 

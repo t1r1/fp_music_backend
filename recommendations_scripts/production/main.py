@@ -18,18 +18,19 @@ TOP_K = 50
 # - v1: quick prototype, starter weights
 # - v2: adjusted weights based on the papers we cited
 # - v3: tuned "inspired" after listening feedback (it sounded too sad / melancholic)
-RUN_TAG = "v3"
+# - v4: tuned "sad" and "happy" after offline metric calculation and listening feedback. increased annotation weight for "sad". decreased "annotation" weight for "happy"
+RUN_TAG = "v4"
 
 MOOD_CONFIG = {
     # 1 happy (amazement / wonder)
     1: {
         "algo_version": f"happy_amazement_hybrid_{RUN_TAG}",
-        "W_ANN": 0.75,
+        "W_ANN": 0.65,
         "audio_features": {
-            "happiness": (0.35, "high"),
+            "happiness": (0.45, "high"),
             "energy": (0.30, "high"),
-            "tempo": (0.20, "mid"),  # can vary, so don't force fast/slow
-            "acousticness": (0.15, "mid"),  # also varies
+            "tempo": (0.20, "mid"),
+            "acousticness": (0.05, "mid"),  # also varies
         },
     },
     # 2 inspired (solemnity) - tuned to feel less sad/melancholic
@@ -113,12 +114,12 @@ MOOD_CONFIG = {
     # 9 sad (sadness)
     9: {
         "algo_version": f"sad_hybrid_{RUN_TAG}",
-        "W_ANN": 0.55,
+        "W_ANN": 0.6,
         "audio_features": {
-            "energy": (0.30, "low"),
-            "tempo": (0.30, "low"),
-            "happiness": (0.25, "low"),
-            "acousticness": (0.15, "high"),
+            "energy": (0.40, "low"),
+            "tempo": (0.40, "low"),
+            "happiness": (0.1, "low"),
+            "acousticness": (0.1, "high"),
         },
     },
 }
