@@ -21,7 +21,7 @@ def fetch_recommended_tracks(
 ) -> list[Track]:
 
     query = (
-        "SELECT r.id, t.title, t.artist, t.genre, t.emotify_id "
+        "SELECT r.id, t.title, t.artist, t.genre, t.emotify_id, r.final_score "
         "FROM Tracks AS t "
         "INNER JOIN Recommendations AS r ON t.id = r.track_id "
         "WHERE r.mood_id = %s "
@@ -48,6 +48,7 @@ def fetch_recommended_tracks(
                     artist=val[2],
                     genre=val[3],
                     filepath=f"/api/media/{val[3]}/{filename}.mp3",
+                    relevance=round(val[5], 2),
                 )
 
             return list(map(mapper, tracks))

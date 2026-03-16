@@ -18,6 +18,7 @@ class Track(BaseModel):
     artist: str
     genre: str
     filepath: str
+    relevance: float
 
 
 class RecommendationsResponse(BaseModel):
