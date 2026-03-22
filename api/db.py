@@ -4,8 +4,12 @@ from typing import Optional
 from api.models import Mood, Track, EvaluationResponse
 from psycopg.rows import dict_row
 
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_USER = os.getenv("DB_USER", "t1r1")
 DB_PASSWD = os.getenv("DB_PASSWD", "31337")
-DB_DSN = f"dbname=music user=t1r1 password={DB_PASSWD} host=localhost port=5432"
+DB_NAME = os.getenv("DB_NAME", "music")
+DB_DSN = f"dbname={DB_NAME} user={DB_USER} password={DB_PASSWD} host={DB_HOST} port={DB_PORT}"
 
 
 def fetch_moods() -> list[Mood]:
