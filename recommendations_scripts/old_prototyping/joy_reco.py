@@ -1,7 +1,9 @@
 import pandas as pd
 import psycopg
+import os
 
-DB_DSN = "dbname=music user=t1r1 password=31337 host=localhost port=5432"
+DB_PASSWD = os.getenv("DB_PASSWD", "31337")
+DB_DSN = f"dbname=music user=t1r1 password={DB_PASSWD} host=localhost port=5432"
 
 MOOD_ID = 7  # "joy"
 ALGO_VERSION = "joy_hybrid_v1"
