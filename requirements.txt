@@ -3,5 +3,5 @@ requests
 pylast
 psycopg
 pandas
-fastapi
+fastapi[standard]
 uvicorn
