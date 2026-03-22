@@ -1,4 +1,5 @@
 import logging
+import os
 from fastapi import FastAPI
 from typing import Optional, List, Annotated
 from fastapi import Query
@@ -30,8 +31,9 @@ logging.basicConfig(
 
 app = FastAPI(root_path="/api")
 
-# serve everything in ./media under /media
-app.mount("/media", StaticFiles(directory="media"), name="media")
+# serve everything in ./media under /media in dev mode
+if os.path.exists("media"):
+    app.mount("/media", StaticFiles(directory="media"), name="media")
 
 origins = [
     "http://localhost:3000",
