@@ -1,7 +1,8 @@
 import logging
 from fastapi import FastAPI
-from typing import Optional, List
+from typing import Optional, List, Annotated
 from fastapi import Query
+from enum import Enum, auto
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -48,6 +49,12 @@ app.add_middleware(
 app.add_middleware(BaseHTTPMiddleware, dispatch=set_session_id)
 
 
+class AlgoVersion(Enum):
+    v2 = "v2"
+    v3 = "v3"
+    v4 = "v4"
+
+
 @app.get("/moods")
 async def list_moods() -> ListMoodsResponse:
     moods = fetch_moods()
@@ -59,8 +66,9 @@ async def list_tracks(
     sid: SessionID,
     mood_id: int,
     genre: Optional[List[str]] = Query(default=None),
+    algo: Annotated[AlgoVersion, Query()] = AlgoVersion.v4,
 ) -> RecommendationsResponse:
-    tracks = fetch_recommended_tracks(mood_id, "v4", genre, sid)
+    tracks = fetch_recommended_tracks(mood_id, algo.value, genre, sid)
     return RecommendationsResponse(mood_id=mood_id, tracks=tracks)
 
 
