@@ -68,7 +68,7 @@ async def list_tracks(
     sid: SessionID,
     mood_id: int,
     genre: Optional[List[str]] = Query(default=None),
-    algo: Annotated[AlgoVersion, Query()] = AlgoVersion.v4,
+    algo: Annotated[AlgoVersion, Query()] = AlgoVersion.v3,
 ) -> RecommendationsResponse:
     tracks = fetch_recommended_tracks(mood_id, algo.value, genre, sid)
     return RecommendationsResponse(mood_id=mood_id, tracks=tracks)
